@@ -52,7 +52,6 @@ def main():
       # The user has removed or blocked the bot.
       update_id += 1
 
-
 def echo(bot):
   """Echo the message the user sent."""
   global update_id
@@ -63,17 +62,26 @@ def echo(bot):
     if update.message:  # your bot can receive updates without messages
       # Reply to the message
       user = update.effective_user
-      tokenized_message = tok.tokenize(str(update.message.text)).split()
-      print(tokenized_message)
-      user_stats[user.id].words_written += len(tokenized_message)
-      words = user_stats[user.id].words_written
-      word_langs = lang_ider.id_words(tokenized_message, id_type='name')
-      print(word_langs)
-      for word_lang in word_langs:
-        user_stats[user.id].words_in_lang[word_lang] += 1
-      words_in_lang_string = ', '.join([f'{cnt} words in {lang}' for (lang, cnt) in user_stats[user.id].words_in_lang.items()])
-      update.message.reply_text(f'{user.first_name} has written {words_in_lang_string}')
-
+      text = update.message.text
+      entities = update.message.parse_entities()
+      # Parse mentions
+      if '@IdiomataBot' in entities.values():
+        if 'my score' in text:
+          my_sum = float(sum(user_stats[user.id].words_in_lang.values()))
+          my_cnts = [(cnt/my_sum, word) for (word, cnt) in user_stats[user.id].words_in_lang.items() if cnt/my_sum > 0.01]
+          my_cnts.sort(reverse=True)
+          words_in_lang_string = ', '.join([f'{cnt*100:.1f}% words in {lang}' for (cnt, lang) in my_cnts])
+          update.message.reply_text(f'{user.first_name} has written {words_in_lang_string}')
+      # Parse normal messages
+      else:
+        tokenized_message = tok.tokenize(str(text)).split()
+        user_stats[user.id].words_written += len(tokenized_message)
+        words = user_stats[user.id].words_written
+        word_langs = lang_ider.id_words(tokenized_message, id_type='name')
+        print(tokenized_message)
+        print(word_langs)
+        for word_lang in word_langs:
+          user_stats[user.id].words_in_lang[word_lang] += 1
 
 if __name__ == '__main__':
   main()
