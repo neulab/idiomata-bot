@@ -72,6 +72,8 @@ def echo(bot):
           my_cnts.sort(reverse=True)
           words_in_lang_string = ', '.join([f'{cnt*100:.1f}% words in {lang}' for (cnt, lang) in my_cnts])
           update.message.reply_text(f'{user.first_name} has written {words_in_lang_string}')
+        else:
+          update.message.reply_text('Sorry, I couldn\'t recognize that command')
       # Parse normal messages
       else:
         tokenized_message = tok.tokenize(str(text)).split()
