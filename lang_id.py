@@ -1,8 +1,27 @@
 import numpy as np
 import iso639
 
-all_langs = ('dan', 'deu', 'eng', 'fra', 'swe')
+all_langs = ('cay', 'dan', 'deu', 'eng', 'fra', 'swe')
 
+codelang = [('cay', 'Cayuga'), ('other', 'Other')]
+code2lang_dict = {c:l for (c,l) in codelang}
+lang2code_dict = {l:c for (c,l) in codelang}
+
+def code2lang(code):
+  if code in code2lang_dict:
+    return code2lang_dict[code]
+  elif code in iso639.languages.terminology:
+    return iso639.languages.terminology[code].inverted
+  else:
+    return None
+
+def lang2code(lang):
+  if lang in lang2code_dict:
+    return lang2code_dict[lang]
+  elif lang in iso639.languages.inverted:
+    return iso639.languages.inverted[lang].terminology
+  else:
+    return None
 
 class LanguageID(object):
 
@@ -50,7 +69,7 @@ class LanguageID(object):
     if id_type == 'pos': return ret
     ret = ['other' if pos == len(self.langs) else self.langs[pos] for pos in ret]
     if id_type == 'code': return ret
-    ret = ['Other' if code == 'other' else iso639.languages.terminology[code].inverted for code in ret]
+    ret = [code2lang(code) for code in ret]
     return ret
 
 

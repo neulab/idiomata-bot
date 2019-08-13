@@ -7,6 +7,8 @@ This program is dedicated to the public domain under the CC0 license.
 """
 import logging
 import telegram
+import re
+import sys
 import mielke_tokenizer as tok
 import lang_id
 from telegram.error import NetworkError, Unauthorized
@@ -18,12 +20,33 @@ update_id = None
 user_stats = defaultdict(lambda: UserStats())
 
 lang_ider = lang_id.WordCountBasedLanguageID()
+translation_dicts = {}
+partial_dicts = {}
+for lang in ('cay',):
+  my_dict = {}
+  my_partial = defaultdict(lambda: [])
+  with open(f'data/translation_dicts/{lang}.txt', 'r') as f:
+    for line in f:
+      line = line.strip()
+      cols = line.split('\t')
+      if len(cols) == 2:
+        left, right = cols
+        my_dict[left] = right
+        my_dict[right] = left
+        for word in left.split() + right.split():
+          my_partial[word].append(line)
+      else:
+        print(f'bad line in translation dictionary {line}', file=sys.stderr)
+  translation_dicts[lang] = my_dict
+  partial_dicts[lang] = my_partial
 
 class UserStats():
 
   def __init__(self):
     self.words_written = 0
     self.words_in_lang = defaultdict(lambda: 0)
+    self.lang_code = None
+    self.language = None
 
 
 def main():
@@ -72,8 +95,42 @@ def echo(bot):
           my_cnts.sort(reverse=True)
           words_in_lang_string = ', '.join([f'{cnt*100:.1f}% words in {lang}' for (cnt, lang) in my_cnts])
           update.message.reply_text(f'{user.first_name} has written {words_in_lang_string}')
+        elif 'my language' in text:
+          m = re.search('my language (.*)', text)
+          if not m:
+            update.message.reply_text('Write "my language" followed by the language you want to use, e.g. "my language French"')
+          else:
+            my_lang = m.group(1)
+            my_code = lang_id.lang2code(my_lang)
+            if my_code:
+              user_stats[user.id].lang_code = my_code
+              user_stats[user.id].language = my_lang
+              update.message.reply_text(f'Your language was set to {my_lang}')
+            else:
+              update.message.reply_text(f'Sorry, I could not find the language {my_lang}')
+        elif 'translate' in text:
+          m = re.search('translate (.*)', text)
+          lang_code, language = user_stats[user.id].lang_code, user_stats[user.id].language
+          if not m:
+            update.message.reply_text('Write "translate" followed by the word you want to translate')
+          elif lang_code is None:
+            update.message.reply_text('Before you can translate, you need to specify your language.'+
+                                      ' Please write "my language", followed by the language you want to use.')
+          elif lang_code not in translation_dicts:
+            update.message.reply_text('Sorry, I don\'t have a dictionary for {language}')
+          else:
+            word = m.group(1)
+            if word in translation_dicts[lang_code]:
+              trans = translation_dicts[lang_code][word]
+              update.message.reply_text(trans)
+            elif word in partial_dicts[lang_code]:
+              mess = '\n'.join(['Found several possible translations:'] + partial_dicts[lang_code][word][:5])
+              update.message.reply_text(mess)
+            else:
+              update.message.reply_text('Sorry, I don\'t have a dictionary entry in {language} or English for {word}')
         else:
-          update.message.reply_text('Sorry, I couldn\'t recognize that command')
+          update.message.reply_text('Sorry, I couldn\'t recognize that command. You can write '+
+                                    '"my score", "my language [Language]", "translate [word]')
       # Parse normal messages
       else:
         tokenized_message = tok.tokenize(str(text)).split()
