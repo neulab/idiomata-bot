@@ -23,6 +23,7 @@ class UserStats():
 
   def __init__(self):
     self.words_written = 0
+    self.words_in_lang = defaultdict(lambda: 0)
 
 
 def main():
@@ -62,13 +63,15 @@ def echo(bot):
     if update.message:  # your bot can receive updates without messages
       # Reply to the message
       user = update.effective_user
-      tokenized_message = tok.tokenize(update.message)
+      tokenized_message = tok.tokenize(str(update.message.text)).split()
+      print(tokenized_message)
       user_stats[user.id].words_written += len(tokenized_message)
       words = user_stats[user.id].words_written
-      word_langs = lang_ider.id_words(words, type='name')
+      word_langs = lang_ider.id_words(tokenized_message, id_type='name')
+      print(word_langs)
       for word_lang in word_langs:
         user_stats[user.id].words_in_lang[word_lang] += 1
-      words_in_lang_string = ', '.join([f'{cnt} words in {lang}' for (cnt, lang) in user_stats[user.id].words_in_lang[word_lang]])
+      words_in_lang_string = ', '.join([f'{cnt} words in {lang}' for (lang, cnt) in user_stats[user.id].words_in_lang.items()])
       update.message.reply_text(f'{user.first_name} has written {words_in_lang_string}')
 
 

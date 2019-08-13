@@ -78,9 +78,10 @@ def detokenize(instring):
 
   return ''.join(outsequence)
 
-for line in sys.stdin:
-  instring = line.strip()
-  tok_string = tokenize(instring)
-  print(tok_string)
+if __name__ == "__main__":
+  for line in sys.stdin:
+    instring = line.strip()
+    tok_string = tokenize(instring)
+    print(tok_string)
  
 
