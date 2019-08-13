@@ -1,2 +1,4 @@
 token.txt
 *.swp
+__pycache__
+.idea

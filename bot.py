@@ -7,11 +7,22 @@ This program is dedicated to the public domain under the CC0 license.
 """
 import logging
 import telegram
+import mielke_tokenizer as tok
+import lang_id
 from telegram.error import NetworkError, Unauthorized
 from time import sleep
+from collections import defaultdict
 
 
 update_id = None
+user_stats = defaultdict(lambda: UserStats())
+
+lang_ider = lang_id.WordCountBasedLanguageID()
+
+class UserStats():
+
+  def __init__(self):
+    self.words_written = 0
 
 
 def main():
@@ -50,7 +61,15 @@ def echo(bot):
 
     if update.message:  # your bot can receive updates without messages
       # Reply to the message
-      update.message.reply_text(update.message.text)
+      user = update.effective_user
+      tokenized_message = tok.tokenize(update.message)
+      user_stats[user.id].words_written += len(tokenized_message)
+      words = user_stats[user.id].words_written
+      word_langs = lang_ider.id_words(words, type='name')
+      for word_lang in word_langs:
+        user_stats[user.id].words_in_lang[word_lang] += 1
+      words_in_lang_string = ', '.join([f'{cnt} words in {lang}' for (cnt, lang) in user_stats[user.id].words_in_lang[word_lang]])
+      update.message.reply_text(f'{user.first_name} has written {words_in_lang_string}')
 
 
 if __name__ == '__main__':
