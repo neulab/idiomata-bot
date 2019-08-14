@@ -18,7 +18,8 @@ def load_user(id):
   idf = f'db/user/{id}'
   if os.path.isfile(idf):
     with open(idf, 'rb') as f:
-      return pickle.load(f)
+      user = pickle.load(f)
+      return user
   return UserStats(id)
 
 def save_user(id, user):

@@ -107,7 +107,7 @@ def echo(bot):
         # ---------- translate
         elif '@IdiomataBot translate' in text:
           m = re.search('@IdiomataBot translate (.*)', text)
-          lang_code, language = user_stats.get_language(id)
+          lang_code, language = user_stats.get_language(user.id)
           if not m:
             update.message.reply_text('Write "@IdiomataBot translate" followed by the word you want to translate')
           elif lang_code is None:
