@@ -1,31 +1,50 @@
 
 import lang_id
-from collections import defaultdict
+import os
+import pickle
 
-class UserStats():
+if not os.path.exists('db/user/'):
+    os.makedirs('db/user/')
 
-  def __init__(self):
-    self.words_written = 0
-    self.words_in_lang = defaultdict(lambda: 0)
+class UserStats(object):
+
+  def __init__(self, id):
+    self.id = id
+    self.words_in_lang = {}
     self.lang_code = None
     self.language = None
 
-all_user_stats = defaultdict(lambda: UserStats())
+def load_user(id):
+  idf = f'db/user/{id}'
+  if os.path.isfile(idf):
+    with open(idf, 'rb') as f:
+      return pickle.load(f)
+  return UserStats(id)
+
+def save_user(id, user):
+  idf = f'db/user/{id}'
+  with open(idf, 'wb') as f:
+    pickle.dump(user, f)
 
 def get_words_in_lang(id):
-  return all_user_stats[id].words_in_lang
+  return load_user(id).words_in_lang
 
 def add_words_in_lang(id, my_words):
+  user = load_user(id)
   for k, v in my_words.items():
-    all_user_stats[id].words_in_lang[k] += v
+    user.words_in_lang[k] = user.words_in_lang.get(k, 0) + v
+  save_user(id, user)
 
 def set_language(id, my_lang):
   my_code = lang_id.lang2code(my_lang)
   if my_code:
-    all_user_stats[id].lang_code = my_code
-    all_user_stats[id].language = my_lang
+    user = load_user(id)
+    user.lang_code = my_code
+    user.language = my_lang
+    save_user(id, user)
   else:
     raise ValueError(f'Could not find {my_lang}')
 
 def get_language(id):
-  return all_user_stats[id].lang_code, all_user_stats[id].language
+  user = load_user(id)
+  return user.lang_code, user.language

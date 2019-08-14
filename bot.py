@@ -90,7 +90,7 @@ def echo(bot):
           my_sum = float(sum(words_in_lang.values()))
           my_cnts = [(cnt/my_sum, word) for (word, cnt) in words_in_lang.items() if cnt/my_sum > 0.01]
           my_cnts.sort(reverse=True)
-          words_in_lang_string = ', '.join([f'{cnt*100:.1f}% words in {lang}' for (cnt, lang) in my_cnts])
+          words_in_lang_string = ', '.join([f'{cnt*100:.1f}% in {lang}' for (cnt, lang) in my_cnts])
           update.message.reply_text(f'{user.first_name} has written {words_in_lang_string}')
         # ---------- my language
         elif '@IdiomataBot my language' in text:
