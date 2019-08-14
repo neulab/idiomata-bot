@@ -10,7 +10,7 @@ import telegram
 import re
 import sys
 import user_stats
-import mielke_tokenizer as tok
+import tokenizer
 import lang_id
 from telegram.error import NetworkError, Unauthorized
 from time import sleep
@@ -18,10 +18,11 @@ from collections import defaultdict
 
 update_id = None
 
+tok = tokenizer.SimpleTokenizer()
 lang_ider = lang_id.WordCountBasedLanguageID()
 translation_dicts = {}
 partial_dicts = {}
-for lang in ('cay',):
+for lang in ('cay','see'):
   my_dict = {}
   my_partial = defaultdict(lambda: [])
   with open(f'data/translation_dicts/{lang}.txt', 'r') as f:
@@ -124,7 +125,7 @@ def echo(bot):
               mess = '\n'.join(['Found several possible translations:'] + partial_dicts[lang_code][word][:5])
               update.message.reply_text(mess)
             else:
-              update.message.reply_text('Sorry, I don\'t have a dictionary entry in {language} or English for {word}')
+              update.message.reply_text(f'Sorry, I don\'t have a dictionary entry in {language} or English for {word}')
         # ---------- (unknown command)
         else:
           update.message.reply_text('Sorry, I couldn\'t recognize that command. You can write '+
@@ -132,7 +133,7 @@ def echo(bot):
 
       # Parse normal messages
       else:
-        tokenized_message = tok.tokenize(str(text)).split()
+        tokenized_message = tok.tokenize(str(text))
         word_langs = lang_ider.id_words(tokenized_message, id_type='name')
         words_in_lang = defaultdict(lambda: 0)
         for word_lang in word_langs:

@@ -1,9 +1,9 @@
 import numpy as np
 import iso639
 
-all_langs = ('cay', 'dan', 'deu', 'eng', 'fra', 'swe')
+all_langs = ('cay', 'dan', 'deu', 'eng', 'fra', 'see', 'swe')
 
-codelang = [('cay', 'Cayuga'), ('other', 'Other')]
+codelang = [('cay', 'Cayuga'), ('see', 'Seneca'), ('other', 'Other')]
 code2lang_dict = {c:l for (c,l) in codelang}
 lang2code_dict = {l:c for (c,l) in codelang}
 
