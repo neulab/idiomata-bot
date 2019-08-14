@@ -11,6 +11,10 @@ Install requirementes:
 Create a bot according to the [Telegram Bot Instructions](https://core.telegram.org/bots)
 Add the token to a file named "token.txt".
 
+Download data for some common languages:
+
+    bash download_data.sh
+
 Run the bot:
 
     python bot.py
