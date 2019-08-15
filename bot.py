@@ -19,7 +19,7 @@ from collections import defaultdict
 update_id = None
 
 tok = tokenizer.SimpleTokenizer()
-lang_ider = lang_id.WordCountBasedLanguageID()
+lang_ider = lang_id.WordClassifierLanguageID()
 translation_dicts = {}
 partial_dicts = {}
 for lang in ('cay','see'):
