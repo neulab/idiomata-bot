@@ -2,6 +2,7 @@
     This class measures the distance between 2 words in 1 language
 '''
 class StringMatcher():
+
     def __init__(self, words):
         '''
             A list of words from the dictionary
@@ -26,25 +27,35 @@ class StringMatcher():
 
         return distances[-1]
 
-    def match_string(self, input_str, threshold):
+    def match_string_with_threshold(self, input_str, threshold=2):
         '''
             Compare input_str with words in the dictionary
         '''
-        suggested_words = []
-        for word in self.words:
+        
+        suggested_words = {}
+        for word, definition in self.words.items():
             edit_distance_score = self.min_edit_distance(word, input_str)
             if edit_distance_score <= threshold:
-                suggested_words.append((word, edit_distance_score))
+                suggested_words[word] = edit_distance_score
+        top_similar_words = self.rank_word(suggested_words)
 
-        return suggested_words
+        the_new_list = []
+        for word, score in top_similar_words:
+            the_new_list.append((word, self.words[word]))
+
+        return the_new_list
+
+    def rank_word(self, suggested_words, limit_word = 5):
+        sorted_words = sorted(suggested_words.items(), key=lambda x: x[1])
+        #to be added: rank words based on phonetic similarity etc
+        return sorted_words[:5]
 
 def main():
     words = ["hello", "hi", "English", "halo"]
     input_str = "hallo"
     string_matcher = StringMatcher(words)
 
-    threshold = 2
-    corrected_words = string_matcher.match_string(input_str, threshold)
+    corrected_words = string_matcher.match_string_with_threshold(input_str)
     print(corrected_words)
 
     
