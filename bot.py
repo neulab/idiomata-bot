@@ -29,8 +29,8 @@ for lang in ('cay','see'):
 
   my_dict = {}
   my_partial = defaultdict(lambda: [])
-  #with open(f'../data/translation_dicts/{lang}.txt', 'r') as f:
-  with open(f'data/translation_dicts/{lang}.txt', 'r') as f:
+  with open(f'../data/translation_dicts/{lang}.txt', 'r') as f:
+  #with open(f'data/translation_dicts/{lang}.txt', 'r') as f:
     for line in f:
       line = line.strip()
       cols = line.split('\t')
@@ -53,8 +53,8 @@ def main():
   """Run the bot."""
   global update_id
   # Telegram Bot Authorization Token
-  #with open('../token.txt', 'r') as f:
-  with open('token.txt', 'r') as f:
+  with open('../token.txt', 'r') as f:
+  #with open('token.txt', 'r') as f:
     token = f.readline().strip()
   bot = telegram.Bot(token)
 
@@ -135,7 +135,7 @@ def echo(bot):
               #threshold = 2
               match_str = string_matcher_dict[lang_code]
               suggested_words = match_str.match_string_with_threshold(word)
-              print(suggested_words)
+              #print(suggested_words)
               update.message.reply_text(f'Sorry, I don\'t have a dictionary entry in {language} or English for {word}')
               update.message.reply_text(f'Do you mean')
               if len(suggested_words) > 0:
