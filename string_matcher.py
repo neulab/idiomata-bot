@@ -1,6 +1,9 @@
+import random
+import sys
 '''
     This class measures the distance between 2 words in 1 language
 '''
+random.seed(23)
 class StringMatcher():
 
     def __init__(self, words):
@@ -51,11 +54,21 @@ class StringMatcher():
         return sorted_words[:5]
 
 def main():
-    words = ["hello", "hi", "English", "halo"]
-    input_str = "hallo"
-    string_matcher = StringMatcher(words)
+    my_dict = {}
+    with open(f'../data/translation_dicts/cay.txt', 'r') as f:
+        for line in f:
+          line = line.strip()
+          cols = line.split('\t')
+          if len(cols) == 2:
+            left, right = cols
+            my_dict[left] = right
+            my_dict[right] = left
+          else:
+            print(f'bad line in translation dictionary {line}', file=sys.stderr)
+          str_matcher = StringMatcher(my_dict)
 
-    corrected_words = string_matcher.match_string_with_threshold(input_str)
+    input_str = 'aha'
+    corrected_words = str_matcher.match_string_with_threshold(input_str)
     print(corrected_words)
 
     
