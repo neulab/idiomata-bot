@@ -15,7 +15,6 @@ import lang_id
 from telegram.error import NetworkError, Unauthorized
 from time import sleep
 from collections import defaultdict
-import string_matcher
 
 update_id = None
 
@@ -23,13 +22,9 @@ tok = tokenizer.SimpleTokenizer()
 lang_ider = lang_id.WordClassifierLanguageID()
 translation_dicts = {}
 partial_dicts = {}
-string_matcher_dict = {}
-
 for lang in ('cay','see'):
-
   my_dict = {}
   my_partial = defaultdict(lambda: [])
-  #with open(f'../data/translation_dicts/{lang}.txt', 'r') as f:
   with open(f'data/translation_dicts/{lang}.txt', 'r') as f:
     for line in f:
       line = line.strip()
@@ -44,16 +39,14 @@ for lang in ('cay','see'):
         print(f'bad line in translation dictionary {line}', file=sys.stderr)
   translation_dicts[lang] = my_dict
   partial_dicts[lang] = my_partial
-  string_matcher_dict[lang] = string_matcher.StringMatcher(translation_dicts[lang])
 
-#print(translation_dicts['cay'])
 
-#quit()
+
+
 def main():
   """Run the bot."""
   global update_id
   # Telegram Bot Authorization Token
-  #with open('../token.txt', 'r') as f:
   with open('token.txt', 'r') as f:
     token = f.readline().strip()
   bot = telegram.Bot(token)
@@ -132,18 +125,7 @@ def echo(bot):
               mess = '\n'.join(['Found several possible translations:'] + partial_dicts[lang_code][word][:5])
               update.message.reply_text(mess)
             else:
-              #threshold = 2
-              match_str = string_matcher_dict[lang_code]
-              suggested_words = match_str.match_string_with_threshold(word)
-              print(suggested_words)
               update.message.reply_text(f'Sorry, I don\'t have a dictionary entry in {language} or English for {word}')
-              update.message.reply_text(f'Do you mean')
-              if len(suggested_words) > 0:
-                for number, word_definition in enumerate(suggested_words):
-                  word, definition = word_definition
-                  number += 1
-                  update.message.reply_text(f'{number}. {word} : {definition}\n')
-
         # ---------- (unknown command)
         else:
           update.message.reply_text('Sorry, I couldn\'t recognize that command. You can write '+
